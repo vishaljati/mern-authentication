@@ -1,5 +1,5 @@
 import { Schema, model, InferSchemaType } from "mongoose";
-import { type IUser } from "../types/model_types/user.types.js"
+import { type IUser } from "../types/userModel.types.js"
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken";
 import { env } from "../env-config/env.js"
@@ -51,8 +51,8 @@ userSchema.pre("save", async function () {
     const SALT_ROUNDS = 12;
     this.password = await bcrypt.hash(this.password, SALT_ROUNDS);
 });
-//Comapre with hashing password
 
+//Comapre with hashing password
 userSchema.methods.isPasswordCorrect = async function (password:string):Promise<boolean> {
     return await bcrypt.compare(password, this.password)
 }
