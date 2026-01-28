@@ -51,6 +51,11 @@ userSchema.pre("save", async function () {
     const SALT_ROUNDS = 12;
     this.password = await bcrypt.hash(this.password, SALT_ROUNDS);
 });
+//Comapre with hashing password
+
+userSchema.methods.isPasswordCorrect = async function (password:string):Promise<boolean> {
+    return await bcrypt.compare(password, this.password)
+}
 
 //Generating JWT Tokens
 userSchema.methods.generateAccessToken = function () {
