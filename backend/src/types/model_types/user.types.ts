@@ -5,4 +5,5 @@ export interface IUser {
     mobile_no?: number
     password: string;
     isVerified: boolean;
+    refreshToken:string;
 }
