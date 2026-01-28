@@ -22,7 +22,6 @@ export class ApiError extends Error {
 
     toJSON(): ApiFailure {
         return {
-            success: false,
             statusCode: this.statusCode,
             message: this.message,
             errors: this.errors,

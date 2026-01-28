@@ -2,7 +2,7 @@ import { Schema, model, InferSchemaType } from "mongoose";
 import { type IUser } from "../types/userModel.types.js"
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken";
-import { env } from "../env-config/env.js"
+
 
 const userSchema = new Schema<IUser>(
     {
@@ -66,7 +66,7 @@ userSchema.methods.generateAccessToken = function () {
             email: this.email,
             mobile_no: this.mobile_no || null
         },
-        env.ACCESS_TOKEN_SECRET,
+        process.env.ACCESS_TOKEN_SECRET as string,
         {
             expiresIn: "1d"
         }
@@ -80,7 +80,7 @@ userSchema.methods.generateRefreshToken = function ():string {
             username:this.username
 
         },
-        env.REFRESH_TOKEN_SECRET,
+        process.env.REFRESH_TOKEN_SECRET as string,
         {
             expiresIn:"7d" 
         }

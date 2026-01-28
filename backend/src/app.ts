@@ -1,7 +1,8 @@
-import express, { type Application, Request, Response } from "express";
+import express, { type Application,type Request,type Response } from "express";
 import cors from "cors";
 
 const app: Application = express();
+
 app.use(
   cors({
     origin: process.env.REACT_CLIENT_URL,
@@ -19,5 +20,9 @@ app.get("/", (req: Request, res: Response) => {
     message: "API is running",
   });
 });
+
+import authRouter from "./routes/auth.routes.js"
+
+app.use("/api/v1/auth",authRouter)
 
 export default app;
