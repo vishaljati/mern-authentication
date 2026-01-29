@@ -2,6 +2,33 @@ import { type Request, type Response } from "express"
 import { AsyncHandler, ApiError, ApiResponse } from "../utils/index.js";
 import { User } from "../models/user.models.js";
 import jwt from "jsonwebtoken";
+import { Types } from "mongoose";
+
+const generateAccessAndRefreshTokens = async (userId: Types.ObjectId) => {
+    try {
+        const user = await User.findById(userId)
+        if (!user) {
+            throw new ApiError(404, "User not found")
+        }
+        const accessToken = user.generateAccessToken()
+        const refreshToken = user.generateRefreshToken()
+        if (!accessToken || !refreshToken) {
+            throw new ApiError(500, "Access token or Refresh token generation failed")
+        }
+
+        user.refreshToken = refreshToken;
+        await user.save({ validateBeforeSave: false })
+        return {
+            accessToken,
+            refreshToken
+        }
+    } catch (error) {
+        console.log("ERROR :", error);
+        throw new ApiError(500, "Something went wrong while generating Access and Refresh Token")
+    }
+
+
+}
 
 const registerUser = AsyncHandler(async (req: Request, res: Response) => {
     try {
@@ -43,4 +70,43 @@ const registerUser = AsyncHandler(async (req: Request, res: Response) => {
 
 })
 
-export { registerUser }
+const loginUser = AsyncHandler(async (req: Request, res: Response) => {
+    try {
+        const { email, password } = req.body
+        if (!email || !password) {
+            throw new ApiError(400, "Email and Password is required")
+
+        }
+        const user = await User.findOne({ email })
+
+        if (!user) {
+            throw new ApiError(404, "User not found")
+        }
+
+        const isPasswordValid = await user.isPasswordCorrect(password)
+
+        if (!isPasswordValid) {
+            throw new ApiError(401, "Invalid password")
+        }
+        const userId = user._id
+        const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(userId)
+        const loggedInUser = await User.findById(userId).select("-password -refreshToken")
+
+        const options = {
+            httpOnly: true,
+            secure: true
+        }
+
+        return res.status(200)
+            .cookie("accessToken", accessToken, options)
+            .cookie("refreshToken", refreshToken, options)
+            .json(new ApiResponse(200, "User logged in successfully", loggedInUser))
+
+
+    } catch (error) {
+        console.log("ERROR :", error);
+        throw new ApiError(500, "Something went wrong while login user")
+    }
+
+})
+export { registerUser, loginUser }

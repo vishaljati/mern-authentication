@@ -7,3 +7,9 @@ export interface IUser{
     isVerified:boolean
     refreshToken?:string
 }
+export interface IUserMethods {
+  isPasswordCorrect(password: string): Promise<boolean>;
+  generateAccessToken():string;
+  generateRefreshToken():string;
+
+}
