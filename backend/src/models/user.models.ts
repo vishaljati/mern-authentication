@@ -2,6 +2,7 @@ import { Schema, model, type Model } from "mongoose";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { type IUser, type IUserMethods } from "../types/userModel.types.js";
+import { type AccessTokenPayload, type RefreshTokenPayload } from "../types/jwt.types.js";
 
 
 const userSchema = new Schema<
@@ -62,8 +63,8 @@ userSchema.methods.generateAccessToken = function (): string {
       _id: this._id,
       username: this.username,
       email: this.email,
-      mobile_no: this.mobile_no ?? null,
-    },
+
+    } as AccessTokenPayload,
     process.env.ACCESS_TOKEN_SECRET as string,
     {
       expiresIn: "1d",
@@ -75,8 +76,9 @@ userSchema.methods.generateRefreshToken = function (): string {
   return jwt.sign(
     {
       _id: this._id,
-      username: this.username,
-    },
+      email: this.email,
+      
+    } as RefreshTokenPayload,
     process.env.REFRESH_TOKEN_SECRET as string,
     {
       expiresIn: "7d",
