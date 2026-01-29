@@ -4,6 +4,8 @@ import jwt, { type JwtPayload } from "jsonwebtoken";
 import { User } from "../models/user.models.js"
 import { type AccessTokenPayload } from "../types/jwt.types.js";
 
+
+
 export const verifyUser = AsyncHandler(async (
     req: Request,
     _,
@@ -41,6 +43,7 @@ export const verifyUser = AsyncHandler(async (
         throw new ApiError(401, "Invalid Access Token");
     }
 
-    req.user = user;
+    req.user=user
+    
     next();
 })
